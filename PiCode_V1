@@ -1,0 +1,63 @@
+#include <Wire.h>
+
+// The default I2C address of your purple TCA9548A multiplexer
+#define TCAADDR 0x70
+
+// Define the exact hardware I2C pins for the ESP32-C6
+#define I2C_SDA 6
+#define I2C_SCL 7
+
+/**
+ * Tells the TCA9548A multiplexer which output channel to open.
+ * channel: a number from 0 to 7 matching the SDx/SCx pins.
+ */
+void selectTCAChannel(uint8_t channel) {
+  if (channel > 7) return; // The multiplexer only has channels 0-7
+ 
+  Wire.beginTransmission(TCAADDR);
+  // Send a bitmask byte to open the specific channel line
+  // Channel 0 = 0b00000001, Channel 1 = 0b00000010, etc.
+  Wire.write(1 << channel); 
+  Wire.endTransmission();
+}
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) { delay(10); } // Wait for serial monitor to open
+  
+  Serial.println("\n--- ESP32-C6 I2C Multiplexer Initialization ---");
+
+  // Initialize the main I2C bus using the ESP32-C6 specific pins
+  bool success = Wire.begin(I2C_SDA, I2C_SCL);
+  
+  if (success) {
+    Serial.println("Main I2C Highway successfully started on GPIO 6 & 7.");
+  } else {
+    Serial.println("Error: Failed to start main I2C bus. Check wiring!");
+  }
+}
+
+void loop() {
+  // Loop through your 4 connected channels (SD0/SC0 up to SD3/SC3)
+  for (uint8_t channel = 0; channel < 4; channel++) {
+    
+    Serial.print("Opening Multiplexer Channel: ");
+    Serial.println(channel);
+    
+    // Switch the multiplexer to the current channel
+    selectTCAChannel(channel);
+    
+    // --- YOUR DEVICE READ CODE GOES HERE ---
+    // Right now, the ESP32-C6 is directly linked to the sensor on this specific channel row.
+    // Example placeholder:
+    // int data = mySensorLibrary.readMagneticField();
+    // Serial.print("Sensor Data: ");
+    // Serial.println(data);
+    // ----------------------------------------
+
+    delay(200); // Small pause before switching to the next sensor track
+  }
+
+  Serial.println("----------------------------------------------");
+  delay(2000); // Wait 2 seconds before scanning all 4 sensors again
+}
