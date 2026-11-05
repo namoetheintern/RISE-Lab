@@ -1,0 +1,18 @@
+## format the pi to setup workspaces
+## Inter-Integrated Circuit (I2C) - communication protocol for automation and monitoring and
+## tools for reading and writing data [sudo apt-get install i2c-tools]
+
+sudo raspi-config
+
+## Select I2C.
+## When asked if you want the ARM I2C interface to be enabled, choose Yes.
+## Select Finish and reboot your Raspberry Pi.
+
+# Update your package tool list
+sudo apt-get update
+
+# Install python3 pip package manager if missing
+sudo apt-get install -y python3-pip
+
+# Install the multiplexer control library
+pip3 install adafruit-circuitpython-tca9548a
